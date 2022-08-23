@@ -1,8 +1,11 @@
-const mondoose = require("mongoose");
+require("dotenv").config();
+const {Sequelize} = require("sequelize");
 
-mondoose.connect('mongodb://127.0.0.1:27017/AnyDatabase',{
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+const connection = new Sequelize(process.env.DB_name,process.env.DB_User,process.env.Pass,{
+    host:"localhost",
+    dialect:"mysql",
+    logging:false
 })
 
-module.exports = mondoose;
+module.exports = connection;
+

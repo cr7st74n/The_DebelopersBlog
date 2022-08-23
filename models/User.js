@@ -1,18 +1,47 @@
-const {Schema, Model} = require("mongoose");
+const {DataTypes, Model} = require("sequelize");
+const bcrypt = require("bcrypt");
 
-const userSchema = new Schema({ //bluePrint
+class User extends Model{};
+
+User.init({
+    username:{
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate:{
+            min:4
+        }
+    },
     email:{
-        type: String,
-        required:true
+        type: DataTypes.STRING,
+        allowNull:false,
+        validate:{
+            isEmail:true
+        }
     },
     password:{
-        type:String,
-        required: true,
-        min:6
+        type:DataTypes.STRING,
+        allowNull: false,
+        validate:{
+            len:{
+                args:4,
+                msg:"Your password must be at least 6 character in length."
+            }
+        }
+    }
+
+},{
+    sequelize: require("../config/connection"),
+    nodelName:"user",
+    hooks:{
+        async beforeCreate(user){
+            const hashec_pass = await bcrypt.hash(user.password,10);
+            user.password = hashec_pass;
+        }
     }
 });
 
-const User = new Model("user",userSchema);
-//const User = new Model("user",userSchema);
+User.prototype.validatePass = async function(pass, stored_pass){
+    return await bcrypt.compare(pass,stored_pass);
+};
 
 module.exports = User;
